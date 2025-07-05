@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormatDetailItem", "..\Util
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSCControls", "SSCControls\SSCControls.csproj", "{9E05D404-D91D-43B1-B0A8-61B2F51656A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSCCommonComponent", "SSCCommonComponent\SSCCommonComponent.csproj", "{E6023710-4D6B-4E7A-8D55-755FF00ACBDF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,10 @@ Global
 		{9E05D404-D91D-43B1-B0A8-61B2F51656A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E05D404-D91D-43B1-B0A8-61B2F51656A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E05D404-D91D-43B1-B0A8-61B2F51656A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6023710-4D6B-4E7A-8D55-755FF00ACBDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6023710-4D6B-4E7A-8D55-755FF00ACBDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6023710-4D6B-4E7A-8D55-755FF00ACBDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6023710-4D6B-4E7A-8D55-755FF00ACBDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +78,7 @@ Global
 		{1AA59B48-2D66-400B-9CAA-B47A1CC5F7F7} = {FD7341DC-D22C-4E37-AAA9-4B367B457848}
 		{F340F63C-1A86-4D5B-B837-0C69F3910060} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{9E05D404-D91D-43B1-B0A8-61B2F51656A6} = {FD7341DC-D22C-4E37-AAA9-4B367B457848}
+		{E6023710-4D6B-4E7A-8D55-755FF00ACBDF} = {FD7341DC-D22C-4E37-AAA9-4B367B457848}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F57E1429-36A6-4333-8A41-E0F602995121}
