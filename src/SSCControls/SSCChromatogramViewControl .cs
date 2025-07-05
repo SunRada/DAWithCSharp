@@ -38,10 +38,11 @@ namespace SSCControls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+
             _graphRenderer.Draw(e.Graphics, this.ClientRectangle);
 
             // 可选：调用外部坐标轴绘制
-            _axisRenderer.DrawAxes(e.Graphics, this.ClientRectangle);
+            _axisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
         }
 
     }

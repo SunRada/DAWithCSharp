@@ -9,14 +9,14 @@ namespace SSCCommonComponent.Struct
     /// <summary>
     /// 表示图形绘制区域的边距（单位：像素）
     /// </summary>
-    public struct ChartMargin
+    public struct Margin
     {
         public int Left { get; set; }
         public int Right { get; set; }
         public int Top { get; set; }
         public int Bottom { get; set; }
 
-        public ChartMargin(int left, int right, int top, int bottom)
+        public Margin(int left, int right, int top, int bottom)
         {
             Left = left;
             Right = right;
@@ -32,7 +32,7 @@ namespace SSCCommonComponent.Struct
         /// <summary>
         /// 提供一个默认边距（左80，右40，上40，下60）
         /// </summary>
-        public static ChartMargin Default => new ChartMargin(80, 40, 40, 60);
+        public static Margin Default => new Margin(80, 40, 40, 60);
     }
 
 }

@@ -9,7 +9,7 @@ namespace SSCCommonComponent
     {
         public List<PointF> DataPoints { get; set; } = new List<PointF>();
         public Pen CurvePen { get; set; } = new Pen(Color.Blue, 2);
-        public ChartMargin Margin { get; set; } = new ChartMargin(80, 40, 40, 60);
+        public Margin Margin { get; set; } = new Margin(80, 40, 40, 60);
 
         public GraphPanel() { }
 

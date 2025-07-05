@@ -14,8 +14,8 @@ namespace WinFormsAppTest
         {
             InitializeComponent();
             this.Text = "Chromatogram Viewer";
-            this.Width = 800;
-            this.Height = 600;
+            this.Width = 1280;
+            this.Height = 1024;
 
             chromatogramView = new SSCChromatogramViewControl
             {
