@@ -26,9 +26,9 @@ namespace SSCCommonComponent
             g.DrawString("Time (min)", labelFont, labelBrush, origin.X + width / 2 - 30, origin.Y + 30);
 
             // X 轴主刻度（每 100）
-            int xMax = 50;
-            int xMajorStep = 5;
-            int xMinorStep = 1;
+            int xMax = 200;
+            int xMajorStep = 20;
+            int xMinorStep = 4;
 
             for (int xVal = 0; xVal <= xMax; xVal += xMinorStep)
             {
