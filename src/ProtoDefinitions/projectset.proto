@@ -1,0 +1,18 @@
+syntax = "proto3";
+package mypackage.SSC.common;
+
+import "report.proto";
+import "schedule.proto";
+
+message ProjectSet {
+    Project Project = 1;
+    int32 UniqueID = 2;
+}
+
+message Project {
+    string ProjectName = 1;
+    int32 ProjectID = 2;
+    string memo = 3;
+    repeated Schedules schedules = 4;
+    repeated Reports reports = 5;
+}
