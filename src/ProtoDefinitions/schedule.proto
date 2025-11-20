@@ -2,7 +2,8 @@ syntax = "proto3";
 package mypackage.SSC.common;
 
 message Schedules {
-    string name = 1;
-    int32 id = 2;
-    string email = 3;
+    int32 taskID = 1;
+    string startDay = 2;
+    string endDay = 3;
 }
+

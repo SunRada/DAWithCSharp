@@ -4,15 +4,29 @@ package mypackage.SSC.common;
 import "report.proto";
 import "schedule.proto";
 
+// ProjectSet message definition
 message ProjectSet {
+    // The project within the set
     Project Project = 1;
+
+    // Unique identifier for the project set
     int32 UniqueID = 2;
 }
 
+// Project message definition
 message Project {
+    // Name of the project
     string ProjectName = 1;
+
+    // ID of the project
     int32 ProjectID = 2;
+
+    // Memo or description for the project
     string memo = 3;
+
+    // List of schedules associated with the project
     repeated Schedules schedules = 4;
+
+    // List of reports associated with the project
     repeated Reports reports = 5;
 }
