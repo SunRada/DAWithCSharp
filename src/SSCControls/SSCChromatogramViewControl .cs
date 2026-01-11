@@ -190,20 +190,21 @@ namespace SSCControls
             var savedState = g.Save();
             g.SetClip(new RectangleF(innerLeft, innerTop, innerWidth, innerHeight));
 
-            // Draw from back to front
+            // Map all layers first so we can compute global vertical bounds and apply a translation
+            var mappedLayers = new List<PointF[]>();
+            var penColors = new List<Color>();
             for (int layer = 0; layer < bins; layer++)
             {
                 var pts = layers[layer];
-                if (pts.Count == 0) continue;
+                if (pts.Count == 0)
+                {
+                    mappedLayers.Add(Array.Empty<PointF>());
+                    penColors.Add(Color.Empty);
+                    continue;
+                }
 
-                // Sort by X
                 pts.Sort((a, b) => a.X.CompareTo(b.X));
-
-                var penColor = Color.FromArgb(255 - (int)(layer * (200.0 / Math.Max(1, bins - 1))), Color.Blue.R, Color.Blue.G);
-                using var pen = new Pen(penColor, 1.2f);
-
-                // Map points once into screen coordinates and draw using DrawLines for performance
-                var mapped = new List<PointF>(pts.Count);
+                var mapped = new PointF[pts.Count];
                 for (int i = 0; i < pts.Count; i++)
                 {
                     var p = pts[i];
@@ -212,17 +213,66 @@ namespace SSCControls
                     float y = innerTop + innerHeight - yScaled * innerHeight;
                     float offset = (layer - (bins - 1) / 2.0f) * DepthOffset;
                     y += offset;
-                    mapped.Add(new PointF(x, y));
+                    mapped[i] = new PointF(x, y);
                 }
+                mappedLayers.Add(mapped);
+                var penColor = Color.FromArgb(255 - (int)(layer * (200.0 / Math.Max(1, bins - 1))), Color.Blue.R, Color.Blue.G);
+                penColors.Add(penColor);
+            }
 
-                if (mapped.Count == 1)
+            // compute vertical bounds
+            float globalMinY = float.MaxValue, globalMaxY = float.MinValue;
+            foreach (var arr in mappedLayers)
+            {
+                foreach (var pt in arr)
+                {
+                    if (pt.Y < globalMinY) globalMinY = pt.Y;
+                    if (pt.Y > globalMaxY) globalMaxY = pt.Y;
+                }
+            }
+
+            if (globalMinY == float.MaxValue)
+            {
+                // nothing to draw
+                g.Restore(savedState);
+                return;
+            }
+
+            float innerBottom = innerTop + innerHeight;
+            float translateY = 0f;
+            // If any points are below innerBottom (overlapping X axis area), shift everything up
+            if (globalMaxY > innerBottom)
+            {
+                translateY = innerBottom - globalMaxY - 1f; // small padding
+            }
+            // If any points are above innerTop, shift down to keep fully visible
+            if (globalMinY + translateY < innerTop)
+            {
+                translateY = innerTop - globalMinY + 1f;
+            }
+
+            // Now draw layers with translation applied
+            for (int layer = 0; layer < mappedLayers.Count; layer++)
+            {
+                var mapped = mappedLayers[layer];
+                if (mapped.Length == 0) continue;
+                var penColor = penColors[layer];
+                using var pen = new Pen(penColor, 1.2f);
+
+                if (mapped.Length == 1)
                 {
                     var p = mapped[0];
+                    p.Y += translateY;
                     g.DrawEllipse(pen, p.X - 1.5f, p.Y - 1.5f, 3f, 3f);
                 }
-                else if (mapped.Count > 1)
+                else
                 {
-                    g.DrawLines(pen, mapped.ToArray());
+                    var arr = new PointF[mapped.Length];
+                    for (int i = 0; i < mapped.Length; i++)
+                    {
+                        arr[i] = new PointF(mapped[i].X, mapped[i].Y + translateY);
+                    }
+                    g.DrawLines(pen, arr);
                 }
             }
 
