@@ -10,13 +10,13 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
-	<ItemGroup>
-		<Protobuf Include="ProjectSet.proto" />
-		<Protobuf Include="schedule.proto" />
-		<Protobuf Include="report.proto" />
-		<Protobuf Include="quality.proto" />
-		<Protobuf Include="person.proto" />
-	</ItemGroup>
+  <ItemGroup>
+    <Protobuf Include="ProjectSet.proto" />
+    <Protobuf Include="schedule.proto" />
+    <Protobuf Include="report.proto" />
+    <Protobuf Include="quality.proto" />
+    <Protobuf Include="person.proto" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" />
@@ -25,5 +25,5 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-	
+    
 </Project>

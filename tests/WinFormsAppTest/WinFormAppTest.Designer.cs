@@ -1,6 +1,6 @@
 ﻿namespace WinFormsAppTest
 {
-    partial class WinFromAppTest
+    partial class WinFormAppTest
     {
         /// <summary>
         ///  Required designer variable.
@@ -30,12 +30,12 @@
         {
             SuspendLayout();
             // 
-            // Form1
+            // WinFormAppTest
             // 
             AutoScaleDimensions = new SizeF(13F, 28F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1098, 707);
-            Name = "Form1";
+            Name = "WinFormAppTest";
             Text = "Form1";
             ResumeLayout(false);
         }

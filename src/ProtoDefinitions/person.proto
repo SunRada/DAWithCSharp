@@ -1,4 +1,6 @@
 syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
 package mypackage.SSC.common;
 
 // Person message defines basic information about a person
@@ -12,7 +14,8 @@ message Person {
     // Birthday, required field, number 3
     string birthday = 3;
 
-    repeated History history = 4；
+    // List of history records associated with the person
+    repeated History history = 4; 
 }
 
 // History message defines basic information about a person's history
