@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SSCControls;
+using SSCCommonComponent;
+using SSCDataLib;
 
 namespace WinFormsAppTest
 {
@@ -19,6 +21,7 @@ namespace WinFormsAppTest
             this.Text = "Chromatogram Viewer";
             this.Width = 1280;
             this.Height = 1024;
+            this.AutoScaleMode = AutoScaleMode.Dpi;
 
             // 下拉列表用于选择显示模式（2D/3D/Heatmap）
             displayModeCombo = new ComboBox
