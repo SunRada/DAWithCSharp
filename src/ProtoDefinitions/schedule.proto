@@ -1,9 +1,130 @@
 syntax = "proto3";
 package mypackage.SSC.common;
 
+// Backwards-compatible simple schedule message (legacy)
 message Schedules {
     int32 taskID = 1;
     string startDay = 2;
     string endDay = 3;
+}
+
+// New richer scheduling model
+// A TaskSet represents a collection of tasks (a project schedule or a milestone grouping)
+message TaskSet {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+
+  // Global planned time window for this set (epoch ms)
+  int64 start_at = 4;
+  int64 end_at = 5;
+
+  // Top-level tasks in this set
+  repeated Task tasks = 6;
+
+  // Arbitrary metadata
+  map<string, string> metadata = 7;
+}
+
+// A Task is a unit of work which may contain phases or subtasks
+message Task {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+
+  // optional parent task id (for hierarchical tasks)
+  int32 parent_task_id = 4;
+
+  // who is responsible (user id or team name)
+  string assigned_to = 5;
+
+  // scheduling
+  int64 planned_start = 6; // epoch ms
+  int64 planned_end = 7;   // epoch ms
+  int64 actual_start = 8;  // epoch ms
+  int64 actual_end = 9;    // epoch ms
+
+  // estimate / progress
+  int32 estimated_minutes = 10;
+  int32 actual_minutes = 11;
+  float progress = 12; // 0.0 - 100.0 percent
+
+  // Phases belonging to this task
+  repeated Phase phases = 13;
+
+  // simple dependency list (by task id)
+  repeated int32 depends_on_task_ids = 14;
+
+  // recurrence rule if task is recurring
+  RecurrenceRule recurrence = 15;
+
+  // status and priority
+  TaskStatus status = 16;
+  Priority priority = 17;
+
+  // resources (e.g., resource ids or descriptors)
+  repeated string resources = 18;
+
+  // tags and metadata
+  repeated string tags = 19;
+  map<string, string> metadata = 20;
+}
+
+// Phase represents a named stage within a Task
+message Phase {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+
+  int64 planned_start = 4;
+  int64 planned_end = 5;
+  int64 actual_start = 6;
+  int64 actual_end = 7;
+
+  // subtasks inside this phase
+  repeated SubTask subtasks = 8;
+
+  map<string, string> metadata = 9;
+}
+
+// SubTask is a lightweight unit within a Phase
+message SubTask {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  string assigned_to = 4;
+  int64 planned_start = 5;
+  int64 planned_end = 6;
+  float progress = 7;
+  TaskStatus status = 8;
+  map<string, string> metadata = 9;
+}
+
+// Recurrence rule for repeating tasks
+message RecurrenceRule {
+  // simple ISO-like rule strings, or structured fields
+  string rrule = 1;
+  // optional end condition
+  int32 count = 2; // number of occurrences, 0 = unlimited
+  int64 until = 3; // epoch ms end date (optional)
+}
+
+// Priority enumeration
+enum Priority {
+  PRIORITY_UNSET = 0;
+  LOW = 1;
+  MEDIUM = 2;
+  HIGH = 3;
+  CRITICAL = 4;
+}
+
+// Task status enumeration
+enum TaskStatus {
+  TASK_STATUS_UNKNOWN = 0;
+  TODO = 1;
+  IN_PROGRESS = 2;
+  BLOCKED = 3;
+  DONE = 4;
+  CANCELLED = 5;
 }
 

@@ -4,29 +4,71 @@ package mypackage.SSC.common;
 import "report.proto";
 import "schedule.proto";
 
-// ProjectSet message definition
+// ProjectSet message definition: represents a collection of projects and its metadata
 message ProjectSet {
-    // The project within the set
-    Project Project = 1;
+  // The list of projects included in this set
+  repeated Project projects = 1;
 
-    // Unique identifier for the project set
-    int32 UniqueID = 2;
+  // Unique identifier for the project set
+  int32 unique_id = 2;
+
+  // Human-friendly name for the set
+  string name = 3;
+
+  // Optional description / memo
+  string description = 4;
+
+  // Owner or responsible person/team
+  string owner = 5;
+
+  // Creation/last-modified timestamps (unix epoch milliseconds)
+  int64 created_at = 6;
+  int64 updated_at = 7;
+
+  // Arbitrary metadata key/value pairs
+  map<string, string> metadata = 8;
 }
 
-// Project message definition
+// Project message definition: detailed information about a single project
 message Project {
-    // Name of the project
-    string ProjectName = 1;
+  // Name of the project
+  string project_name = 1;
 
-    // ID of the project
-    int32 ProjectID = 2;
+  // ID of the project
+  int32 project_id = 2;
 
-    // Memo or description for the project
-    string memo = 3;
+  // Memo or description for the project
+  string memo = 3;
 
-    // List of schedules associated with the project
-    repeated Schedules schedules = 4;
+  // List of schedules associated with the project (defined in schedule.proto)
+  repeated Schedules schedules = 4;
 
-    // List of reports associated with the project
-    repeated Reports reports = 5;
+  // List of reports associated with the project (defined in report.proto)
+  repeated Reports reports = 5;
+
+  // Tags or labels for quick filtering
+  repeated string tags = 6;
+
+  // Current project status
+  ProjectStatus status = 7;
+
+  // Project version or schema version
+  string version = 8;
+
+  // Optional contact for the project (email or team name)
+  string contact = 9;
+
+  // Optional resource references (e.g., dataset ids, external refs)
+  repeated string resource_refs = 10;
+
+  // Extra metadata for extensibility
+  map<string, string> metadata = 11;
+}
+
+// Project lifecycle / visibility
+enum ProjectStatus {
+  PROJECT_STATUS_UNKNOWN = 0;
+  PROJECT_STATUS_ACTIVE = 1;
+  PROJECT_STATUS_PAUSED = 2;
+  PROJECT_STATUS_ARCHIVED = 3;
 }

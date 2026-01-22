@@ -1,9 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
 
 namespace SSCDataLib
 {
+    public struct Point3F
+    {
+        public float X { get; set; }
+        public float Y { get; set; }
+        public float Z { get; set; }
+
+        public Point3F(float x, float y, float z)
+        {
+            X = x; Y = y; Z = z;
+        }
+    }
+
     public class ChroData
     {
         // Identifiers
@@ -23,6 +36,9 @@ namespace SSCDataLib
         public double[] Intensities { get; set; } = Array.Empty<double>();
         // Optional scan numbers mapping to each point
         public int[] ScanNumbers { get; set; } = Array.Empty<int>();
+
+        // 3D point collection (convenience collection representing X/Y/Z points)
+        public List<Point3F> Points3D { get; set; } = new List<Point3F>();
 
         // Units and flags
         public string TimeUnit { get; set; } = "min";
@@ -62,6 +78,7 @@ namespace SSCDataLib
             RetentionTimes = retentionTimes != null ? (double[])retentionTimes.Clone() : Array.Empty<double>();
             Intensities = intensities != null ? (double[])intensities.Clone() : Array.Empty<double>();
             ScanNumbers = Array.Empty<int>();
+            Points3D = new List<Point3F>();
         }
     }
 }
