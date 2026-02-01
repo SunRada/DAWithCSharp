@@ -4,9 +4,9 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using SSCControls;
-using SSCCommonComponent;
-using SSCDataLib;
+using SSC.Controls;
+using SSC.CommonComponent;
+using SSC.DataLib;
 
 namespace WinFormsAppTest
 {
@@ -21,7 +21,6 @@ namespace WinFormsAppTest
             this.Text = "Chromatogram Viewer";
             this.Width = 1280;
             this.Height = 1024;
-            this.AutoScaleMode = AutoScaleMode.Dpi;
 
             // 下拉列表用于选择显示模式（2D/3D/Heatmap）
             displayModeCombo = new ComboBox
@@ -43,8 +42,22 @@ namespace WinFormsAppTest
             this.Controls.Add(displayModeCombo);
             this.Controls.Add(chromatogramView);
 
+            // 右键菜单
+            var ctx = new ContextMenuStrip();
+            var settingsItem = new ToolStripMenuItem("Settings...");
+            settingsItem.Click += SettingsItem_Click;
+            ctx.Items.Add(settingsItem);
+            chromatogramView.ContextMenuStrip = ctx;
+
             // 异步加载并设置数据，避免阻塞 UI 线程
             _ = LoadDataAsync();
+        }
+
+        private void SettingsItem_Click(object? sender, EventArgs e)
+        {
+            // Use ShowDialog to keep the dialog alive until user closes it.
+            using var dlg = new ChromatogramSettingsForm(chromatogramView);
+            dlg.ShowDialog(this);
         }
 
         private void DisplayModeCombo_SelectedIndexChanged(object? sender, EventArgs e)

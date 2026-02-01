@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
+﻿using System.ComponentModel;
+using SSC.CommonComponent;
+using SSC.DataLib;
 using System.Windows.Forms;
-using SSCCommonComponent;
-using SSCDataLib;
+using System.Collections.Generic;
+using System.Drawing;
 
-namespace SSCControls
+namespace SSC.Controls
 {
     public enum ChromatogramDisplayMode
     {
@@ -20,12 +18,14 @@ namespace SSCControls
     {
         private readonly GraphPanel _graphRenderer = new GraphPanel();
         private readonly Axis _axisRenderer = new Axis();
+        private readonly HorizontalAxis _horizontalAxisRenderer = new HorizontalAxis();
+        private readonly VerticalAxis _verticalAxisRenderer = new VerticalAxis();
 
         public SSCChromatogramViewControl()
         {
             this.DoubleBuffered = true;
             this.ResizeRedraw = true; 
-
+            
         }
 
         [Category("Data")]
@@ -123,7 +123,9 @@ namespace SSCControls
                     e.Graphics, 
                     this.ClientRectangle
                 );
-                _axisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
+                //_axisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
+                _horizontalAxisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
+                _verticalAxisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
                 return;
             }
 
@@ -136,7 +138,9 @@ namespace SSCControls
                     DepthOffset,
                     ZBins
                 );
-                _axisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
+                //_axisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
+                _horizontalAxisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
+                _verticalAxisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
                 return;
             }
 
@@ -148,7 +152,9 @@ namespace SSCControls
                     DataPoints3D ?? new List<Point3F>(),
                     ZBins
                 );
-                _axisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
+                //_axis_renderer.DrawAxis(e.Graphics, this.ClientRectangle);
+                _horizontalAxisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
+                _verticalAxisRenderer.DrawAxis(e.Graphics, this.ClientRectangle);
                 return;
             }
         }

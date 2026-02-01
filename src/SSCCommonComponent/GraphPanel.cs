@@ -2,24 +2,47 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using SSCCommonComponent.Struct;
-using SSCDataLib;
+using SSC.CommonComponent.Struct;
+using SSC.DataLib;
 
-namespace SSCCommonComponent
+namespace SSC.CommonComponent
 {
+    /// <summary>
+    /// GraphPanel is responsible for drawing 2D chromatogram curves, stacked 3D line views and heatmaps.
+    /// It exposes a simple API for providing data points and basic rendering parameters (Margin, CurvePen).
+    /// </summary>
     public class GraphPanel
     {
+        /// <summary>
+        /// 2D data points (X: retention/time, Y: intensity)
+        /// </summary>
+        // 2D 数据点集合：X 表示保留时间或扫描时间，Y 表示响应强度
         public List<PointF> DataPoints { get; set; } = new List<PointF>();
+
+        /// <summary>
+        /// Pen used to draw the 2D curve.
+        /// </summary>
+        // 绘制 2D 曲线的画笔，可在运行时调整宽度和颜色
         public Pen CurvePen { get; set; } = new Pen(Color.Blue, 2);
+
+        /// <summary>
+        /// Plot margins (left, right, top, bottom) in pixels. Axes rendering uses these values to reserve space.
+        /// </summary>
+        // 绘图区域边距：用于为坐标轴和标签留出空间（单位：像素）
         public Margin Margin { get; set; } = new Margin(80, 40, 40, 60);
 
         /// <summary>
-        /// If true, axis ranges will be derived from data when asked.
+        /// If true, axis ranges will be derived from data when asked by the control.
         /// </summary>
+        // 是否自动根据数据范围设置坐标轴范围
         public bool AutoScaleAxes { get; set; } = true;
 
         public GraphPanel() { }
 
+        /// <summary>
+        /// Draws a simple 2D curve into the provided client rectangle. The method respects the configured Margin
+        /// and assumes DataPoints contains at least two points.
+        /// </summary>
         public void Draw(Graphics g, Rectangle clientRect)
         {
             g.Clear(Color.White);
@@ -27,9 +50,11 @@ namespace SSCCommonComponent
             if (DataPoints == null || DataPoints.Count < 2)
                 return;
 
+            // Compute inner drawing area (respect margins)
             float width = clientRect.Width - Margin.Left - Margin.Right;
             float height = clientRect.Height - Margin.Top - Margin.Bottom;
 
+            // Find maximum values for simple normalization
             float maxX = float.MinValue, maxY = float.MinValue;
             foreach (var pt in DataPoints)
             {
@@ -37,7 +62,8 @@ namespace SSCCommonComponent
                 if (pt.Y > maxY) maxY = pt.Y;
             }
 
-            // 曲线
+            // 如果数据是非常小的数量级，maxX 或 maxY 可能为极小值，但后续代码已有保护。
+            // Draw the polyline connecting consecutive data points
             for (int i = 1; i < DataPoints.Count; i++)
             {
                 var p1 = DataPoints[i - 1];
@@ -54,12 +80,14 @@ namespace SSCCommonComponent
 
         /// <summary>
         /// Return data bounds: minX, maxX, minY, maxY. If no data, returns zeros.
+        /// This is used by controls to determine axis ranges when AutoScaleAxes is enabled.
         /// </summary>
         public (float minX, float maxX, float minY, float maxY) GetDataBounds()
         {
             if (DataPoints == null || DataPoints.Count == 0)
                 return (0f, 0f, 0f, 0f);
 
+            // 计算数据边界（min/max），用于坐标轴自动缩放
             float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
             foreach (var p in DataPoints)
             {
@@ -69,18 +97,26 @@ namespace SSCCommonComponent
                 if (p.Y > maxY) maxY = p.Y;
             }
 
+            // Avoid zero-range which would cause division by zero in rendering code
             if (Math.Abs(maxX - minX) < 1e-12f) maxX = minX + 1e-6f;
             if (Math.Abs(maxY - minY) < 1e-12f) maxY = minY + 1e-6f;
 
             return (minX, maxX, minY, maxY);
         }
 
+        /// <summary>
+        /// DrawStacked3D renders a stacked line view from 3D points grouped into Z bins.
+        /// It maps X/Y into the inner plotting rectangle (respecting Margin) and applies a per-layer vertical offset
+        /// to create a stacked appearance. The method clips drawing to the inner area and will translate the
+        /// entire set upward if parts would overlap the axis area.
+        /// </summary>
         public void DrawStacked3D(Graphics g, Rectangle rc, List<Point3F> data, float depthOffset, int zBins)
         {
+            // 3D 堆叠渲染：将三维点按 Z 分箱，然后对每个箱按 X 排序并绘制折线
             if (data == null || data.Count == 0) return;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-            // Determine ranges
+            // Determine numeric ranges in the data
             var minX = data.Min(p => p.X);
             var maxX = data.Max(p => p.X);
             var minY = data.Min(p => p.Y);
@@ -92,6 +128,7 @@ namespace SSCCommonComponent
             if (minY == maxY) maxY = minY + 1e-6f;
             if (minZ == maxZ) maxZ = minZ + 1e-6f;
 
+            // Bin points by Z to create layers
             int bins = Math.Max(1, zBins);
             var layers = new List<List<Point3F>>(bins);
             for (int i = 0; i < bins; i++) layers.Add(new List<Point3F>());
@@ -103,15 +140,19 @@ namespace SSCCommonComponent
                 layers[idx].Add(p);
             }
 
+            // Compute inner plotting rectangle
             var margin = this.Margin;
             float innerLeft = rc.Left + margin.Left;
             float innerTop = rc.Top + margin.Top;
             float innerWidth = rc.Width - margin.Left - margin.Right;
             float innerHeight = rc.Height - margin.Top - margin.Bottom;
 
+            // Clip to inner area so axes/labels are preserved
+            // 将绘制限制在内部绘图区域，避免覆盖坐标轴与标签
             var savedState = g.Save();
             g.SetClip(new RectangleF(innerLeft, innerTop, innerWidth, innerHeight));
 
+            // Map points to screen coordinates per layer
             var mappedLayers = new List<PointF[]>();
             var penColors = new List<Color>();
             for (int layer = 0; layer < bins; layer++)
@@ -141,6 +182,8 @@ namespace SSCCommonComponent
                 penColors.Add(penColor);
             }
 
+            // Determine vertical bounds and translate if necessary so nothing is clipped by axes
+            // 计算映射后所有点的垂直范围，如果超出内部区域则整体上移，避免被 X 轴遮挡
             float globalMinY = float.MaxValue, globalMaxY = float.MinValue;
             foreach (var arr in mappedLayers)
             {
@@ -168,6 +211,8 @@ namespace SSCCommonComponent
                 translateY = innerTop - globalMinY + 1f;
             }
 
+            // Draw layers (translated) using DrawLines for performance
+            // 绘制每一层：单点用小圆表示，多点用 DrawLines 提高性能
             for (int layer = 0; layer < mappedLayers.Count; layer++)
             {
                 var mapped = mappedLayers[layer];
@@ -195,8 +240,13 @@ namespace SSCCommonComponent
             g.Restore(savedState);
         }
 
+        /// <summary>
+        /// DrawHeatmap aggregates 3D points into a 2D grid (X vs Z) and renders colored cells whose intensity
+        /// corresponds to the maximum Y value observed in each bin. Drawing is clipped to the inner plotting area.
+        /// </summary>
         public void DrawHeatmap(Graphics g, Rectangle rc, List<Point3F> data, int zBins)
         {
+            // 热图渲染：将 X 和 Z 分箱，取每格的最大 Y 作为强度，然后用颜色表示
             if (data == null || data.Count == 0) return;
 
             var margin = this.Margin;
@@ -223,6 +273,8 @@ namespace SSCCommonComponent
             float epsX = Math.Abs(maxX - minX) < 1e-12f ? 1e-6f : 0f;
             float epsZ = Math.Abs(maxZ - minZ) < 1e-12f ? 1e-6f : 0f;
 
+            // Aggregate data into grid (take maximum Y per cell)
+            // 将数据聚合到网格中（每格保留最大 Y）
             foreach (var p in data)
             {
                 int ix = (int)((p.X - minX) / (maxX - minX + epsX) * (xBins - 1));
@@ -232,6 +284,8 @@ namespace SSCCommonComponent
                 grid[ix, iz] = Math.Max(grid[ix, iz], p.Y);
             }
 
+            // Find global maximum for normalization
+            // 找到全局最大值用于颜色归一化
             double maxVal = 0;
             for (int i = 0; i < xBins; i++)
                 for (int j = 0; j < zbin; j++)
@@ -242,6 +296,8 @@ namespace SSCCommonComponent
             float cellW = innerWidth / xBins;
             float cellH = innerHeight / zbin;
 
+            // Render each cell using a color mapping function
+            // 渲染网格单元，注意 Y 方向与坐标轴一致（原点在内部绘图区域底部）
             for (int ix = 0; ix < xBins; ix++)
             {
                 for (int iz = 0; iz < zbin; iz++)
@@ -259,8 +315,12 @@ namespace SSCCommonComponent
             g.Restore(saved);
         }
 
+        /// <summary>
+        /// Simple color mapping for heatmap values in range [0,1].
+        /// </summary>
         private Color HeatmapColor(float value)
         {
+            // 简单线性颜色映射：value 越大，红色越强；绿色逐渐减弱；蓝色为常量偏移
             value = Math.Clamp(value, 0f, 1f);
             int r = (int)(value * 255);
             int g = (int)((1 - value) * 255);

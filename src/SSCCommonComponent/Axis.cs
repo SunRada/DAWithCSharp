@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Drawing;
-using SSCCommonComponent.Struct;
+using SSC.CommonComponent.Struct;
 
-namespace SSCCommonComponent
+namespace SSC.CommonComponent
 {
     public class Axis
     {
@@ -18,34 +18,35 @@ namespace SSCCommonComponent
         public string XLabel { get; set; } = "Time (min)";
         public string YLabel { get; set; } = "Intensity";
 
-        public void DrawAxis(Graphics g, Rectangle clientArea)
+        // Public entry: draw both axes
+        public virtual void DrawAxis(Graphics g, Rectangle clientArea)
         {
-            int width = clientArea.Width - Margin.Left - Margin.Right;
-            int height = clientArea.Height - Margin.Top - Margin.Bottom;
+            DrawHorizontal(g, clientArea);
+            DrawVertical(g, clientArea);
+        }
 
-            Point origin = new Point(Margin.Left, clientArea.Height - Margin.Bottom);
+        // Derived classes can override to customize horizontal axis drawing
+        protected virtual void DrawHorizontal(Graphics g, Rectangle clientArea)
+        {
+            var margin = this.Margin;
+            int width = clientArea.Width - margin.Left - margin.Right;
+            int height = clientArea.Height - margin.Top - margin.Bottom;
+            Point origin = new Point(margin.Left, clientArea.Height - margin.Bottom);
 
             using var axisPen = new Pen(Color.Black, 2);
-            Pen majorTickPen = Pens.Gray;
             using var minorTickPen = new Pen(Color.LightGray, 1);
-
             using Font labelFont = new Font("Arial", 10);
             Brush labelBrush = Brushes.Black;
 
             // Determine axis ranges
             float xMin = XMin ?? 0f;
             float xMax = XMax ?? 200f;
-            float yMin = YMin ?? 0f;
-            float yMax = YMax ?? 800f;
-
             float xRange = Math.Max(1e-6f, xMax - xMin);
-            float yRange = Math.Max(1e-6f, yMax - yMin);
 
-            // X 轴
+            // Draw X axis line and label
             g.DrawLine(axisPen, origin.X, origin.Y, origin.X + width, origin.Y);
             g.DrawString(XLabel, labelFont, labelBrush, origin.X + width / 2 - 30, origin.Y + 30);
 
-            // Determine nice tick spacing based on range
             int desiredXTicks = 10;
             float xStep = NiceNumber(xRange / desiredXTicks);
             float xStart = (float)Math.Ceiling(xMin / xStep) * xStep;
@@ -57,13 +58,32 @@ namespace SSCCommonComponent
                 string label = xv.ToString("0.##");
                 g.DrawString(label, labelFont, labelBrush, xf - 10, origin.Y + 10);
             }
+        }
 
-            // Y 轴
+        // Derived classes can override to customize vertical axis drawing
+        protected virtual void DrawVertical(Graphics g, Rectangle clientArea)
+        {
+            var margin = this.Margin;
+            int width = clientArea.Width - margin.Left - margin.Right;
+            int height = clientArea.Height - margin.Top - margin.Bottom;
+            Point origin = new Point(margin.Left, clientArea.Height - margin.Bottom);
+
+            using var axisPen = new Pen(Color.Black, 2);
+            using var minorTickPen = new Pen(Color.LightGray, 1);
+            using Font labelFont = new Font("Arial", 10);
+            Brush labelBrush = Brushes.Black;
+
+            // Determine axis ranges
+            float yMin = YMin ?? 0f;
+            float yMax = YMax ?? 800f;
+            float yRange = Math.Max(1e-6f, yMax - yMin);
+
+            // Draw Y axis line and rotated label
             g.DrawLine(axisPen, origin.X, origin.Y, origin.X, origin.Y - height);
-            g.TranslateTransform(origin.X - 50, origin.Y - height / 2 - 10);       // 设置旋转中心
-            g.RotateTransform(90);           // 逆时针旋转90度
+            g.TranslateTransform(origin.X - 50, origin.Y - height / 2 - 10);
+            g.RotateTransform(90);
             g.DrawString(YLabel, labelFont, labelBrush, 0, 0);
-            g.ResetTransform();               // 恢复原始坐标系
+            g.ResetTransform();
 
             int desiredYTicks = 8;
             float yStep = NiceNumber(yRange / desiredYTicks);
@@ -78,7 +98,7 @@ namespace SSCCommonComponent
             }
         }
 
-        private float NiceNumber(float value)
+        public float NiceNumber(float value)
         {
             // Return a "nice" number for tick spacing (1, 2, 5 * 10^n)
             float exp = (float)Math.Floor(Math.Log10(value));

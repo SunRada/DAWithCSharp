@@ -24,7 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Util", "Util", "{02EA681E-C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormatDetailItem", "..\Util\FormatDetailItem\FormatDetailItem.csproj", "{F340F63C-1A86-4D5B-B837-0C69F3910060}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSCControls", "SSCControls\SSCControls.csproj", "{9E05D404-D91D-43B1-B0A8-61B2F51656A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSCChromatogram", "SSCControls\SSCChromatogram.csproj", "{9E05D404-D91D-43B1-B0A8-61B2F51656A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSCCommonComponent", "SSCCommonComponent\SSCCommonComponent.csproj", "{E6023710-4D6B-4E7A-8D55-755FF00ACBDF}"
 EndProject
