@@ -1,8 +1,66 @@
 syntax = "proto3";
 package mypackage.SSC.common;
 
+import "report.proto";
+
+// Quality message describes quality-related metadata and measurements for a project
 message Quality {
-    string name = 1;
-    int32 id = 2;
-    string email = 3;
+  // Unique quality identifier
+  int32 id = 1;
+
+  // Human-friendly name of the quality metric (e.g., "Purity", "Stability")
+  string name = 2;
+
+  // Optional detailed description or notes
+  string description = 3;
+
+  // Category or domain this quality belongs to (e.g., "chemical", "process", "performance")
+  string category = 4;
+
+  // Numeric score for the quality (normalized or absolute depending on unit)
+  double score = 5;
+
+  // Unit for the score (e.g., "%", "ppm", "a.u.")
+  string unit = 6;
+
+  // Qualitative severity/level
+  QualityLevel level = 7;
+
+  // Status indicating whether this quality is OK / Warning / Critical
+  QualityStatus status = 8;
+
+  // Tags for quick filtering
+  repeated string tags = 9;
+
+  // Source of the measurement or assessment (instrument id, manual, system)
+  string source = 10;
+
+  // Time the measurement was taken (unix epoch milliseconds)
+  int64 measured_at = 11;
+
+  // Optional links to reports that reference this quality
+  repeated Reports related_reports = 12;
+
+  // Optional arbitrary metadata
+  map<string, string> metadata = 13;
+
+  // Creation / update timestamps
+  int64 created_at = 14;
+  int64 updated_at = 15;
+}
+
+// Qualitative level enumeration
+enum QualityLevel {
+  QUALITY_LEVEL_UNKNOWN = 0;
+  LOW = 1;
+  MEDIUM = 2;
+  HIGH = 3;
+}
+
+// Status enumeration for quick health check
+enum QualityStatus {
+  QUALITY_STATUS_UNKNOWN = 0;
+  OK = 1;
+  WARNING = 2;
+  CRITICAL = 3;
 }

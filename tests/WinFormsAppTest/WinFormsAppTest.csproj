@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SSCControls\SSCControls.csproj" />
+    <ProjectReference Include="..\..\src\SSCControls\SSCChromatogram.csproj" />
   </ItemGroup>
 
 </Project>

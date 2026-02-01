@@ -1,8 +1,90 @@
 syntax = "proto3";
 package mypackage.SSC.common;
 
+// Expanded Reports message: richer report metadata used by projects
 message Reports {
-    string name = 1;
-    int32 id = 2;
-    string email = 3;
+  // Unique report identifier
+  int32 id = 1;
+
+  // Title or name of the report
+  string title = 2;
+
+  // Short summary or abstract
+  string summary = 3;
+
+  // Full content (could be large); implementations may store externally and put a URL in `content_url`
+  string content = 4;
+  string content_url = 5;
+
+  // Author information
+  string author_name = 6;
+  string author_email = 7;
+
+  // Creation / update timestamps (unix epoch milliseconds)
+  int64 created_at = 8;
+  int64 updated_at = 9;
+
+  // Status and type
+  ReportStatus status = 10;
+  ReportType type = 11;
+
+  // Tags for filtering
+  repeated string tags = 12;
+
+  // Intended recipients (emails or user ids)
+  repeated string recipients = 13;
+
+  // Attachments referenced by the report
+  repeated Attachment attachments = 14;
+
+  // Numeric metrics contained in the report
+  repeated ReportMetric metrics = 15;
+
+  // Optional references to related quality measurements by id (avoid circular imports)
+  repeated int32 related_quality_ids = 16;
+
+  // Optional references to related task IDs (from schedule model)
+  repeated int32 related_task_ids = 17;
+
+  // Parent project id
+  int32 project_id = 18;
+
+  // Free-form metadata
+  map<string, string> metadata = 19;
+
+  // Visibility / access control hint (e.g., public/private/team)
+  string visibility = 20;
+}
+
+// Attachment describes external files referenced by a report
+message Attachment {
+  string name = 1;
+  string url = 2;
+  string content_type = 3;
+  int64 size_bytes = 4;
+}
+
+// Simple metric key/value
+message ReportMetric {
+  string name = 1;
+  double value = 2;
+  string unit = 3;
+}
+
+// Report status enum
+enum ReportStatus {
+  REPORT_STATUS_UNKNOWN = 0;
+  DRAFT = 1;
+  PUBLISHED = 2;
+  ARCHIVED = 3;
+  DEPRECATED = 4;
+}
+
+// Report type enum
+enum ReportType {
+  REPORT_TYPE_UNKNOWN = 0;
+  SUMMARY = 1;
+  TECHNICAL = 2;
+  QA = 3;
+  INCIDENT = 4;
 }

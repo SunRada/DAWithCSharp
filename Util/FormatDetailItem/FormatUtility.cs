@@ -1,6 +1,6 @@
 ﻿namespace FormatDetailItem
 {
-    public class Class1
+    public class FormatUtility
     {
         static void Main(string[] args)
         {

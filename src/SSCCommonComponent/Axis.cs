@@ -1,81 +1,114 @@
 ﻿using System;
 using System.Drawing;
-using SSCCommonComponent.Struct;
+using SSC.CommonComponent.Struct;
 
-namespace SSCCommonComponent
+namespace SSC.CommonComponent
 {
     public class Axis
     {
         public Margin Margin { get; set; } = new Margin(80, 40, 40, 60);
-        public void DrawAxis(Graphics g, Rectangle clientArea)
+
+        // Optional overrides for axis ranges; when null, Axis can try to use renderer-provided bounds
+        public float? XMin { get; set; }
+        public float? XMax { get; set; }
+        public float? YMin { get; set; }
+        public float? YMax { get; set; }
+
+        // Labels (can be customized by caller)
+        public string XLabel { get; set; } = "Time (min)";
+        public string YLabel { get; set; } = "Intensity";
+
+        // Public entry: draw both axes
+        public virtual void DrawAxis(Graphics g, Rectangle clientArea)
         {
-            int width = clientArea.Width - Margin.Left - Margin.Right;
-            int height = clientArea.Height - Margin.Top - Margin.Bottom;
+            DrawHorizontal(g, clientArea);
+            DrawVertical(g, clientArea);
+        }
 
-            Point origin = new Point(Margin.Left, clientArea.Height - Margin.Bottom);
+        // Derived classes can override to customize horizontal axis drawing
+        protected virtual void DrawHorizontal(Graphics g, Rectangle clientArea)
+        {
+            var margin = this.Margin;
+            int width = clientArea.Width - margin.Left - margin.Right;
+            int height = clientArea.Height - margin.Top - margin.Bottom;
+            Point origin = new Point(margin.Left, clientArea.Height - margin.Bottom);
 
-            Pen axisPen = new Pen(Color.Black, 2);
-            Pen majorTickPen = Pens.Gray;
-            Pen minorTickPen = new Pen(Color.LightGray, 1);
-
-            Font labelFont = new Font("Arial", 10);
+            using var axisPen = new Pen(Color.Black, 2);
+            using var minorTickPen = new Pen(Color.LightGray, 1);
+            using Font labelFont = new Font("Arial", 10);
             Brush labelBrush = Brushes.Black;
 
-            // X 轴
+            // Determine axis ranges
+            float xMin = XMin ?? 0f;
+            float xMax = XMax ?? 200f;
+            float xRange = Math.Max(1e-6f, xMax - xMin);
+
+            // Draw X axis line and label
             g.DrawLine(axisPen, origin.X, origin.Y, origin.X + width, origin.Y);
-            g.DrawString("Time (min)", labelFont, labelBrush, origin.X + width / 2 - 30, origin.Y + 30);
+            g.DrawString(XLabel, labelFont, labelBrush, origin.X + width / 2 - 30, origin.Y + 30);
 
-            // X 轴主刻度（每 100）
-            int xMax = 200;
-            int xMajorStep = 20;
-            int xMinorStep = 4;
+            int desiredXTicks = 10;
+            float xStep = NiceNumber(xRange / desiredXTicks);
+            float xStart = (float)Math.Ceiling(xMin / xStep) * xStep;
 
-            for (int xVal = 0; xVal <= xMax; xVal += xMinorStep)
+            for (float xv = xStart; xv <= xMax; xv += xStep)
             {
-                int x = origin.X + (int)(xVal * width / (float)xMax);
-
-                if (xVal % xMajorStep == 0)
-                {
-                    // 主刻度
-                    g.DrawLine(majorTickPen, x, origin.Y + 1, x, origin.Y + 10);
-                    string label = (xVal * 0.1).ToString("0.0");
-                    g.DrawString(label, labelFont, labelBrush, x - 10, origin.Y + 10);
-                }
-                else
-                {
-                    // 辅助刻度
-                    g.DrawLine(minorTickPen, x, origin.Y + 1, x, origin.Y + 6);
-                }
+                float xf = origin.X + (xv - xMin) / xRange * width;
+                g.DrawLine(minorTickPen, xf, origin.Y + 1, xf, origin.Y + 6);
+                string label = xv.ToString("0.##");
+                g.DrawString(label, labelFont, labelBrush, xf - 10, origin.Y + 10);
             }
+        }
 
-            // Y 轴
+        // Derived classes can override to customize vertical axis drawing
+        protected virtual void DrawVertical(Graphics g, Rectangle clientArea)
+        {
+            var margin = this.Margin;
+            int width = clientArea.Width - margin.Left - margin.Right;
+            int height = clientArea.Height - margin.Top - margin.Bottom;
+            Point origin = new Point(margin.Left, clientArea.Height - margin.Bottom);
+
+            using var axisPen = new Pen(Color.Black, 2);
+            using var minorTickPen = new Pen(Color.LightGray, 1);
+            using Font labelFont = new Font("Arial", 10);
+            Brush labelBrush = Brushes.Black;
+
+            // Determine axis ranges
+            float yMin = YMin ?? 0f;
+            float yMax = YMax ?? 800f;
+            float yRange = Math.Max(1e-6f, yMax - yMin);
+
+            // Draw Y axis line and rotated label
             g.DrawLine(axisPen, origin.X, origin.Y, origin.X, origin.Y - height);
-            g.TranslateTransform(origin.X - 50, origin.Y - height / 2 - 10);       // 设置旋转中心
-            g.RotateTransform(90);           // 逆时针旋转90度
-            g.DrawString("Intensity", labelFont, labelBrush, 0, 0);
-            g.ResetTransform();               // 恢复原始坐标系
+            g.TranslateTransform(origin.X - 50, origin.Y - height / 2 - 10);
+            g.RotateTransform(90);
+            g.DrawString(YLabel, labelFont, labelBrush, 0, 0);
+            g.ResetTransform();
 
-            // Y 轴主刻度（每 100）
-            int yMax = 800;
-            int yMajorStep = 100;
-            int yMinorStep = 20;
+            int desiredYTicks = 8;
+            float yStep = NiceNumber(yRange / desiredYTicks);
+            float yStart = (float)Math.Ceiling(yMin / yStep) * yStep;
 
-            for (int yVal = 0; yVal <= yMax; yVal += yMinorStep)
+            for (float yv = yStart; yv <= yMax; yv += yStep)
             {
-                int y = origin.Y - (int)(yVal * height / (float)yMax);
-
-                if (yVal % yMajorStep == 0)
-                {
-                    // 主刻度
-                    g.DrawLine(majorTickPen, origin.X - 10, y, origin.X - 1, y);
-                    g.DrawString(yVal.ToString(), labelFont, labelBrush, origin.X - 50, y - 8);
-                }
-                else
-                {
-                    // 辅助刻度
-                    g.DrawLine(minorTickPen, origin.X - 6, y, origin.X - 1, y);
-                }
+                float yf = origin.Y - (yv - yMin) / yRange * height;
+                g.DrawLine(minorTickPen, origin.X - 6, yf, origin.X - 1, yf);
+                string label = yv.ToString("0.##");
+                g.DrawString(label, labelFont, labelBrush, origin.X - 50, yf - 8);
             }
+        }
+
+        public float NiceNumber(float value)
+        {
+            // Return a "nice" number for tick spacing (1, 2, 5 * 10^n)
+            float exp = (float)Math.Floor(Math.Log10(value));
+            float f = value / (float)Math.Pow(10, exp);
+            float nice;
+            if (f < 1.5f) nice = 1f;
+            else if (f < 3f) nice = 2f;
+            else if (f < 7f) nice = 5f;
+            else nice = 10f;
+            return nice * (float)Math.Pow(10, exp);
         }
     }
 }

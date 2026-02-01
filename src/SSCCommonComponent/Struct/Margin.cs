@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SSCCommonComponent.Struct
+namespace SSC.CommonComponent.Struct
 {
     /// <summary>
     /// 表示图形绘制区域的边距（单位：像素）
